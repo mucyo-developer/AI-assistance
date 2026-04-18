@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Diabetes Assistant - Your Health Companion</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #e74c3c;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #c0392b);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .stats-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .auth-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-auth {
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, var(--success-color), #229954);
+            color: white;
+        }
+
+        .btn-auth:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .preview-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+        }
+
+        .preview-content {
+            text-align: center;
+            padding: 3rem;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+        }
+
+        .preview-content h3 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-content p {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .feature-list {
+            text-align: left;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .feature-icon {
+            color: var(--success-color);
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .auth-buttons {
+                flex-direction: column;
+            }
+            
+            .main-container {
+                margin: 1rem auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>
+                <i class="fas fa-heartbeat"></i>
+                Enhanced Diabetes Assistant
+            </h1>
+            <p>Your comprehensive health companion with real-time statistics and personalized care</p>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Statistics Section -->
+        <div class="stats-section">
+            <h3><i class="fas fa-chart-line"></i> Global Diabetes Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="currentPrevalence">10.8%</div>
+                    <div class="stat-label">Current Global Prevalence</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalAffected">537M</div>
+                    <div class="stat-label">Adults Affected Worldwide</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="projected2030">643M</div>
+                    <div class="stat-label">Projected by 2030</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="projected2045">783M</div>
+                    <div class="stat-label">Projected by 2045</div>
+                </div>
+            </div>
+            <div id="diabetesGraph"></div>
+        </div>
+
+        <!-- Authentication Section -->
+        <div class="auth-section">
+            <h3><i class="fas fa-user-circle"></i> Get Started</h3>
+            <p style="text-align: center; margin-bottom: 2rem; color: #666;">
+                Create an account to save your conversations and get personalized diabetes management assistance.
+            </p>
+            <div class="auth-buttons">
+                <a href="{{ url_for('admin_login') }}" class="btn-auth btn-admin">
+                    <i class="fas fa-user-shield"></i>
+                    Admin Portal
+                </a>
+                <a href="{{ url_for('login') }}" class="btn-auth btn-login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+                <a href="{{ url_for('register') }}" class="btn-auth btn-register">
+                    <i class="fas fa-user-plus"></i>
+                    Register
+                </a>
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="preview-section">
+            <div class="preview-content">
+                <h3><i class="fas fa-star"></i> Features Available</h3>
+                <p>Experience the future of diabetes management with our comprehensive assistant</p>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line feature-icon"></i>
+                        <div>
+                            <strong>Real-time Statistics</strong><br>
+                            <small>Live global diabetes prevalence data and trends</small>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-user-shield feature-icon"></i>
+                        <div>
+                            <strong>Personalized Account</strong><br>
+                            <small>Save conversations and track your health journey</small>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-robot feature-icon"></i>
+                        <div>
+                            <strong>AI-Powered Assistant</strong><br>
+                            <small>Get instant answers to your diabetes questions</small>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-calculator feature-icon"></i>
+                        <div>
+                            <strong>Risk Assessment</strong><br>
+                            <small>ML-powered diabetes risk evaluation</small>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-comments feature-icon"></i>
+                        <div>
+                            <strong>Conversation History</strong><br>
+                            <small>Access your past health discussions anytime</small>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-heartbeat feature-icon"></i>
+                        <div>
+                            <strong>Comprehensive Care</strong><br>
+                            <small>Diet, exercise, and lifestyle guidance</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load diabetes statistics
+        async function loadDiabetesStats() {
+            try {
+                const response = await fetch('/api/diabetes-stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update stat cards
+                    document.getElementById('currentPrevalence').textContent = data.current_prevalence + '%';
+                    document.getElementById('totalAffected').textContent = data.total_adults_affected + 'M';
+                    document.getElementById('projected2030').textContent = data.projected_2030 + 'M';
+                    document.getElementById('projected2045').textContent = data.projected_2045 + 'M';
+                    
+                    // Render graph
+                    const graphData = JSON.parse(data.graph);
+                    Plotly.newPlot('diabetesGraph', graphData.data, graphData.layout, {responsive: true});
+                }
+            } catch (error) {
+                console.error('Error loading diabetes statistics:', error);
+            }
+        }
+
+        // Load statistics when page loads
+        document.addEventListener('DOMContentLoaded', loadDiabetesStats);
+        
+        // Refresh statistics every 5 minutes
+        setInterval(loadDiabetesStats, 300000);
+    </script>
+</body>
+</html>

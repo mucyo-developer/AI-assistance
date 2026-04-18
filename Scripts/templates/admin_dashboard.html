@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Healthcare Provider Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --admin-primary: #2c3e50;
+            --admin-secondary: #34495e;
+            --admin-accent: #3498db;
+            --admin-success: #27ae60;
+            --admin-warning: #f39c12;
+            --admin-danger: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #ecf0f1;
+        }
+
+        .admin-sidebar {
+            background: linear-gradient(180deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-nav a {
+            color: #bdc3c7;
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background: var(--admin-accent);
+            color: white;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--admin-accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .content-card h3 {
+            color: white;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chat-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-message {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+        }
+
+        .chat-message.admin {
+            background: var(--admin-accent);
+            color: white;
+            margin-left: 2rem;
+        }
+
+        .chat-message.ai {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ecf0f1;
+            margin-right: 2rem;
+        }
+
+        .chat-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 1rem 1.5rem;
+            color: white;
+        }
+
+        .chat-input::placeholder {
+            color: #95a5a6;
+        }
+
+        .chat-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--admin-accent);
+            color: white;
+            outline: none;
+        }
+
+        .send-btn {
+            background: var(--admin-accent);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            background: var(--admin-success);
+            transform: scale(1.1);
+        }
+
+        .suggestion-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 0.25rem;
+            transition: all 0.3s;
+        }
+
+        .suggestion-btn:hover {
+            background: var(--admin-accent);
+            border-color: var(--admin-accent);
+        }
+
+        .emergency-item {
+            padding: 1rem;
+            border-left: 4px solid var(--admin-danger);
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .badge-critical { background: var(--admin-danger); }
+        .badge-high { background: var(--admin-warning); }
+        .badge-medium { background: var(--admin-accent); }
+        .badge-resolved { background: var(--admin-success); }
+
+        @media (max-width: 992px) {
+            .admin-sidebar {
+                min-height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-2 admin-sidebar">
+                <div class="admin-brand">
+                    <i class="fas fa-hospital-user"></i> Healthcare Portal
+                </div>
+                <ul class="sidebar-nav">
+                    <li><a href="{{ url_for('admin_dashboard') }}" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="{{ url_for('admin_patients') }}"><i class="fas fa-users"></i> Patients</a></li>
+                    <li><a href="{{ url_for('admin_emergencies') }}"><i class="fas fa-exclamation-triangle"></i> Emergencies</a></li>
+                    <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                </ul>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10 main-content">
+                <h2 class="mb-4"><i class="fas fa-chart-line"></i> Healthcare Provider Dashboard</h2>
+
+                <!-- Statistics Row -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-number">{{ total_patients }}</div>
+                            <div class="stat-label">Total Patients</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-number">{{ total_emergencies }}</div>
+                            <div class="stat-label">Total Emergencies</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-number" style="color: var(--admin-danger);">{{ active_emergencies }}</div>
+                            <div class="stat-label">Active Emergencies</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <div class="stat-number" style="color: var(--admin-success);">24/7</div>
+                            <div class="stat-label">Monitoring</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- AI Assistant (Main Feature) -->
+                    <div class="col-lg-8">
+                        <div class="content-card">
+                            <h3><i class="fas fa-robot"></i> AI Database Assistant</h3>
+                            <p class="text-muted mb-3">Ask me about patients, emergencies, conversations, or any medical information</p>
+                            
+                            <div class="mb-3">
+                                <button class="suggestion-btn" onclick="quickQuery('What users do we have?')">What users do we have?</button>
+                                <button class="suggestion-btn" onclick="quickQuery('How are the patients doing?')">How are patients doing?</button>
+                                <button class="suggestion-btn" onclick="quickQuery('Show me recent emergencies')">Recent emergencies</button>
+                                <button class="suggestion-btn" onclick="quickQuery('What are users talking about?')">Recent conversations</button>
+                            </div>
+                            
+                            <div class="chat-container" id="adminChatMessages">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-robot fa-2x mb-2"></i>
+                                    <p>I can help you query the patient database</p>
+                                    <p>Try asking: "What users do we have?" or "How are patients doing?"</p>
+                                </div>
+                            </div>
+                            
+                            <div class="input-group">
+                                <input type="text" id="adminChatInput" class="form-control chat-input" placeholder="Ask about patients, emergencies, or medical information...">
+                                <button class="btn send-btn" onclick="sendAdminChat()">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Alerts -->
+                    <div class="col-lg-4">
+                        <div class="content-card">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Recent Emergencies</h3>
+                            <div id="emergencyAlerts">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading...
+                                </div>
+                            </div>
+                            <a href="{{ url_for('admin_emergencies') }}" class="btn btn-outline-light mt-3 w-100">
+                                View All Emergencies <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function loadEmergencyAlerts() {
+            try {
+                const response = await fetch('/api/admin/emergency-alerts');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const alertsDiv = document.getElementById('emergencyAlerts');
+                    
+                    if (data.alerts.length === 0) {
+                        alertsDiv.innerHTML = '<div class="text-center text-muted">No emergency alerts</div>';
+                        return;
+                    }
+
+                    alertsDiv.innerHTML = '';
+                    data.alerts.slice(0, 3).forEach(alert => {
+                        const alertDiv = document.createElement('div');
+                        const severityClass = alert.severity === 'critical' ? 'badge-critical' : 
+                                           alert.severity === 'high' ? 'badge-high' : 
+                                           alert.severity === 'medium' ? 'badge-medium' : 'badge-secondary';
+                        
+                        alertDiv.className = 'emergency-item';
+                        alertDiv.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <span class="badge ${severityClass}">${alert.severity.toUpperCase()}</span>
+                                    <strong class="ms-2">${alert.patient_name}</strong>
+                                    <br>
+                                    <small class="text-muted">${alert.alert_type.replace('_', ' ')}</small>
+                                    <br>
+                                    <small class="text-muted">${alert.created_at}</small>
+                                </div>
+                            </div>
+                        `;
+                        alertsDiv.appendChild(alertDiv);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading emergency alerts:', error);
+            }
+        }
+
+        function quickQuery(query) {
+            document.getElementById('adminChatInput').value = query;
+            sendAdminChat();
+        }
+
+        async function sendAdminChat() {
+            const input = document.getElementById('adminChatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const messagesDiv = document.getElementById('adminChatMessages');
+            
+            // Clear initial message if present
+            if (messagesDiv.querySelector('.text-center')) {
+                messagesDiv.innerHTML = '';
+            }
+            
+            // Add admin message
+            const adminMsg = document.createElement('div');
+            adminMsg.className = 'chat-message admin';
+            adminMsg.innerHTML = `<strong>You:</strong> ${message}`;
+            messagesDiv.appendChild(adminMsg);
+            
+            input.value = '';
+            
+            try {
+                const response = await fetch('/admin/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const aiMsg = document.createElement('div');
+                    aiMsg.className = 'chat-message ai';
+                    aiMsg.innerHTML = `<strong>AI Assistant:</strong><br>${data.response.replace(/\n/g, '<br>')}`;
+                    messagesDiv.appendChild(aiMsg);
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }
+            } catch (error) {
+                alert('Error: Could not send message');
+            }
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            loadEmergencyAlerts();
+            
+            // Refresh emergency alerts every 30 seconds
+            setInterval(loadEmergencyAlerts, 30000);
+        });
+
+        // Handle Enter key in chat input
+        document.getElementById('adminChatInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendAdminChat();
+            }
+        });
+    </script>
+</body>
+</html>

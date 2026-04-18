@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Enhanced Diabetes Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #e74c3c;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), #c0392b);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .stats-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .chat-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            background: #fafafa;
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .message.assistant .message-avatar {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 1rem 1.5rem;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .message.user .message-content {
+            background: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 0.5rem;
+        }
+
+        .chat-input {
+            padding: 1.5rem;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .chat-input form {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .chat-input button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .chat-input button:hover {
+            background: #c0392b;
+        }
+
+        .chat-input button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .side-section {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .risk-section, .history-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background: #c0392b;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, var(--success-color), #7fcdbb);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .result-card h4 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .risk-level {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .history-item:hover {
+            background: #f8f9fa;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-question {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .history-answer {
+            font-size: 0.9rem;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-time {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 0.5rem;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            color: #666;
+        }
+
+        .typing-indicator.show {
+            display: flex;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #666;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .emergency-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .emergency-notification.emergency-critical {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .emergency-notification.emergency-high {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .emergency-notification.emergency-medium {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .emergency-notification.emergency-low {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .contact-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .message.emergency-critical .message-content {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .message.emergency-high .message-content {
+            background: #fff3cd;
+            border-color: #ffeaa7;
+            color: #856404;
+        }
+
+        .message.emergency-medium .message-content {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+
+        .message.emergency-low .message-content {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--success-color), #7fcdbb);
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .welcome-message h3 {
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .main-container {
+                margin: 1rem auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-heartbeat"></i> Enhanced Diabetes Assistant
+            </a>
+            <div class="navbar-text">
+                <span class="me-3">Welcome, {{ current_user.username }}!</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <!-- Statistics Section -->
+        <div class="stats-section">
+            <h3><i class="fas fa-chart-line"></i> Global Diabetes Statistics</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="currentPrevalence">10.8%</div>
+                    <div class="stat-label">Current Global Prevalence</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalAffected">537M</div>
+                    <div class="stat-label">Adults Affected Worldwide</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="projected2030">643M</div>
+                    <div class="stat-label">Projected by 2030</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="projected2045">783M</div>
+                    <div class="stat-label">Projected by 2045</div>
+                </div>
+            </div>
+            <div id="diabetesGraph"></div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Chat Section -->
+            <div class="chat-section">
+                <div class="chat-header">
+                    <h3><i class="fas fa-comments"></i> Diabetes Assistant</h3>
+                    <p>Ask me anything about diabetes management</p>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="welcome-message">
+                        <h3><i class="fas fa-user-md"></i> Welcome back!</h3>
+                        <p>I'm your personal diabetes assistant. How can I help you today?</p>
+                    </div>
+                </div>
+                
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <span>Thinking...</span>
+                </div>
+                
+                <div class="chat-input">
+                    <form id="chatForm">
+                        <input type="text" id="messageInput" placeholder="Ask about diabetes, symptoms, diet, exercise..." autocomplete="off">
+                        <button type="submit" id="sendButton">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Side Section -->
+            <div class="side-section">
+                <!-- Emergency Contacts -->
+                <div class="risk-section">
+                    <h3><i class="fas fa-phone-alt"></i> Emergency Contacts</h3>
+                    <div id="emergencyContacts">
+                        <div class="text-center text-muted">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="showAddContactModal()" style="margin-top: 1rem;">
+                        <i class="fas fa-plus"></i> Add Contact
+                    </button>
+                </div>
+
+                <!-- Emergency Alerts -->
+                <div class="history-section">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Emergency Alerts</h3>
+                    <div class="history-list" id="emergencyAlerts">
+                        <div class="text-center text-muted">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risk Assessment -->
+                <div class="risk-section">
+                    <h3><i class="fas fa-calculator"></i> Risk Assessment</h3>
+                    <form id="riskForm">
+                        <div class="form-group">
+                            <label for="age">Age</label>
+                            <input type="number" id="age" name="age" min="1" max="120" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="bmi">BMI</label>
+                            <input type="number" id="bmi" name="bmi" min="10" max="50" step="0.1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="glucose">Glucose Level</label>
+                            <input type="number" id="glucose" name="glucose" min="50" max="400" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="bloodPressure">Blood Pressure</label>
+                            <input type="number" id="bloodPressure" name="bloodPressure" min="60" max="200" required>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-chart-line"></i> Assess Risk
+                        </button>
+                    </form>
+                    
+                    <div class="result-card" id="resultCard">
+                        <h4><i class="fas fa-heart-pulse"></i> Assessment Results</h4>
+                        <div class="risk-level" id="riskLevel"></div>
+                        <div id="riskDetails"></div>
+                    </div>
+                </div>
+
+                <!-- Conversation History -->
+                <div class="history-section">
+                    <h3><i class="fas fa-history"></i> Recent Conversations</h3>
+                    <div class="history-list" id="historyList">
+                        <div class="text-center text-muted">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Contact Modal -->
+    <div class="modal fade" id="addContactModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-phone-alt"></i> Add Emergency Contact</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addContactForm">
+                        <div class="form-group">
+                            <label for="contactName">Name</label>
+                            <input type="text" id="contactName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactRelationship">Relationship</label>
+                            <select id="contactRelationship" required>
+                                <option value="">Select...</option>
+                                <option value="Spouse">Spouse</option>
+                                <option value="Parent">Parent</option>
+                                <option value="Child">Child</option>
+                                <option value="Sibling">Sibling</option>
+                                <option value="Friend">Friend</option>
+                                <option value="Doctor">Doctor</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactPhone">Phone</label>
+                            <input type="tel" id="contactPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactEmail">Email (optional)</label>
+                            <input type="email" id="contactEmail">
+                        </div>
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="isPrimary">
+                                <label class="form-check-label" for="isPrimary">
+                                    Primary Contact
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="addEmergencyContact()">Add Contact</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Load diabetes statistics
+        async function loadDiabetesStats() {
+            try {
+                const response = await fetch('/api/diabetes-stats');
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update stat cards
+                    document.getElementById('currentPrevalence').textContent = data.current_prevalence + '%';
+                    document.getElementById('totalAffected').textContent = data.total_adults_affected + 'M';
+                    document.getElementById('projected2030').textContent = data.projected_2030 + 'M';
+                    document.getElementById('projected2045').textContent = data.projected_2045 + 'M';
+                    
+                    // Render graph
+                    const graphData = JSON.parse(data.graph);
+                    Plotly.newPlot('diabetesGraph', graphData.data, graphData.layout, {responsive: true});
+                }
+            } catch (error) {
+                console.error('Error loading diabetes statistics:', error);
+            }
+        }
+
+        // Load conversation history
+        async function loadConversationHistory() {
+            try {
+                const response = await fetch('/api/user-conversations');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const historyList = document.getElementById('historyList');
+                    
+                    if (data.conversations.length === 0) {
+                        historyList.innerHTML = '<div class="text-center text-muted">No conversations yet</div>';
+                        return;
+                    }
+                    
+                    historyList.innerHTML = '';
+                    data.conversations.forEach(conv => {
+                        const historyItem = document.createElement('div');
+                        historyItem.className = 'history-item';
+                        historyItem.innerHTML = `
+                            <div class="history-question">${conv.message}</div>
+                            <div class="history-answer">${conv.response.substring(0, 100)}...</div>
+                            <div class="history-time">${conv.timestamp}</div>
+                        `;
+                        historyItem.addEventListener('click', () => {
+                            document.getElementById('messageInput').value = conv.message;
+                            document.getElementById('messageInput').focus();
+                        });
+                        historyList.appendChild(historyItem);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading conversation history:', error);
+            }
+        }
+
+        // Chat functionality
+        const chatForm = document.getElementById('chatForm');
+        const messageInput = document.getElementById('messageInput');
+        const chatMessages = document.getElementById('chatMessages');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const sendButton = document.getElementById('sendButton');
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, 'user');
+            messageInput.value = '';
+            
+            // Show typing indicator
+            typingIndicator.classList.add('show');
+            sendButton.disabled = true;
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                
+                // Hide typing indicator
+                typingIndicator.classList.remove('show');
+                sendButton.disabled = false;
+                
+                if (data.success) {
+                    // Check if this is an emergency
+                    if (data.emergency) {
+                        addEmergencyMessage(data.response, data.severity);
+                        // Refresh emergency alerts
+                        loadEmergencyAlerts();
+                    } else {
+                        addMessage(data.response, 'assistant');
+                    }
+                } else {
+                    addMessage('I apologize, but I encountered an error. Please try again.', 'assistant');
+                }
+            } catch (error) {
+                typingIndicator.classList.remove('show');
+                sendButton.disabled = false;
+                addMessage('I apologize, but I encountered an error. Please try again.', 'assistant');
+            }
+        });
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const avatar = sender === 'user' ? 
+                '<i class="fas fa-user"></i>' : 
+                '<i class="fas fa-robot"></i>';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    ${avatar}
+                </div>
+                <div class="message-content">
+                    <div>${text.replace(/\n/g, '<br>')}</div>
+                    <div class="message-time">${new Date().toLocaleTimeString()}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addEmergencyMessage(text, severity) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message assistant emergency-${severity}`;
+            
+            const alertIcon = severity === 'critical' ? '🚨' : 
+                             severity === 'high' ? '⚠️' : 
+                             severity === 'medium' ? '🔶' : '🔵';
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar" style="background: #e74c3c;">
+                    ${alertIcon}
+                </div>
+                <div class="message-content" style="background: #fff3cd; border-color: #ffc107;">
+                    <div>${text.replace(/\n/g, '<br>')}</div>
+                    <div class="message-time">${new Date().toLocaleTimeString()} - EMERGENCY</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Show emergency notification
+            showEmergencyNotification(severity);
+        }
+
+        function showEmergencyNotification(severity) {
+            const notification = document.createElement('div');
+            notification.className = `emergency-notification emergency-${severity}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <strong>Emergency Alert (${severity.toUpperCase()})</strong>
+                    <p>Healthcare provider has been notified</p>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 10000);
+        }
+
+        // Risk assessment functionality
+        const riskForm = document.getElementById('riskForm');
+        const resultCard = document.getElementById('resultCard');
+
+        riskForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(riskForm);
+            const metrics = {
+                Age: parseInt(formData.get('age')),
+                BMI: parseFloat(formData.get('bmi')),
+                Glucose: parseInt(formData.get('glucose')),
+                BloodPressure: parseInt(formData.get('bloodPressure'))
+            };
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ metrics: metrics })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResults(data);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error: Could not connect to the server');
+            }
+        });
+
+        function showResults(data) {
+            const riskLevel = document.getElementById('riskLevel');
+            const riskDetails = document.getElementById('resultCard');
+            
+            riskLevel.textContent = data.risk_level + ' Risk';
+            
+            const riskPercentage = (data.probability * 100).toFixed(1);
+            const riskColor = data.risk_level === 'High' ? '#f38181' : 
+                            data.risk_level === 'Medium' ? '#ffd93d' : '#95e1d3';
+            
+            riskLevel.style.color = riskColor;
+            
+            let advice = '';
+            if (data.risk_level === 'High') {
+                advice = '⚠️ Please consult with a healthcare provider soon. Regular monitoring and lifestyle changes are recommended.';
+            } else if (data.risk_level === 'Medium') {
+                advice = '⚡ Consider discussing this with your doctor. Focus on healthy lifestyle habits and regular check-ups.';
+            } else {
+                advice = '✅ Keep up the good work! Continue maintaining a healthy lifestyle and regular check-ups.';
+            }
+            
+            riskDetails.innerHTML = `
+                <p><strong>Probability:</strong> ${riskPercentage}%</p>
+                <p>${advice}</p>
+                <p><small><em>This assessment is for informational purposes only. Always consult with healthcare professionals for medical advice.</em></small></p>
+            `;
+            
+            resultCard.classList.add('show');
+        }
+
+        // Emergency contact management
+        function showAddContactModal() {
+            const modal = new bootstrap.Modal(document.getElementById('addContactModal'));
+            modal.show();
+        }
+
+        async function addEmergencyContact() {
+            const name = document.getElementById('contactName').value;
+            const relationship = document.getElementById('contactRelationship').value;
+            const phone = document.getElementById('contactPhone').value;
+            const email = document.getElementById('contactEmail').value;
+            const isPrimary = document.getElementById('isPrimary').checked;
+
+            if (!name || !relationship || !phone) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/emergency-contacts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name, relationship, phone, email, isPrimary
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Close modal and reset form
+                    bootstrap.Modal.getInstance(document.getElementById('addContactModal')).hide();
+                    document.getElementById('addContactForm').reset();
+                    
+                    // Reload contacts
+                    loadEmergencyContacts();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error: Could not add contact');
+            }
+        }
+
+        async function loadEmergencyContacts() {
+            try {
+                const response = await fetch('/api/emergency-contacts');
+                const data = await response.json();
+
+                if (data.success) {
+                    const contactsDiv = document.getElementById('emergencyContacts');
+                    
+                    if (data.contacts.length === 0) {
+                        contactsDiv.innerHTML = '<div class="text-center text-muted">No emergency contacts added</div>';
+                        return;
+                    }
+
+                    contactsDiv.innerHTML = '';
+                    data.contacts.forEach(contact => {
+                        const contactDiv = document.createElement('div');
+                        contactDiv.className = 'contact-item';
+                        contactDiv.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${contact.name}</strong>
+                                    ${contact.isPrimary ? '<span class="badge bg-primary ms-2">Primary</span>' : ''}
+                                    <br>
+                                    <small class="text-muted">${contact.relationship}</small>
+                                    <br>
+                                    <small>📞 ${contact.phone}</small>
+                                    ${contact.email ? `<br><small>📧 ${contact.email}</small>` : ''}
+                                </div>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteContact(${contact.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `;
+                        contactsDiv.appendChild(contactDiv);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading emergency contacts:', error);
+            }
+        }
+
+        async function deleteContact(contactId) {
+            if (!confirm('Are you sure you want to delete this contact?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/emergency-contacts/${contactId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    loadEmergencyContacts();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (error) {
+                alert('Error: Could not delete contact');
+            }
+        }
+
+        async function loadEmergencyAlerts() {
+            try {
+                const response = await fetch('/api/emergency-alerts');
+                const data = await response.json();
+
+                if (data.success) {
+                    const alertsDiv = document.getElementById('emergencyAlerts');
+                    
+                    if (data.alerts.length === 0) {
+                        alertsDiv.innerHTML = '<div class="text-center text-muted">No emergency alerts</div>';
+                        return;
+                    }
+
+                    alertsDiv.innerHTML = '';
+                    data.alerts.forEach(alert => {
+                        const alertDiv = document.createElement('div');
+                        const severityColor = alert.severity === 'critical' ? 'danger' : 
+                                           alert.severity === 'high' ? 'warning' : 
+                                           alert.severity === 'medium' ? 'info' : 'secondary';
+                        
+                        alertDiv.className = 'history-item';
+                        alertDiv.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <span class="badge bg-${severityColor}">${alert.severity.toUpperCase()}</span>
+                                    <strong class="ms-2">${alert.alert_type.replace('_', ' ')}</strong>
+                                    <br>
+                                    <small class="text-muted">${alert.created_at}</small>
+                                    ${alert.doctor_notified ? '<br><small class="text-success">👨‍⚕️ Doctor notified</small>' : ''}
+                                    ${alert.contacts_notified ? '<br><small class="text-info">👥 Contacts notified</small>' : ''}
+                                </div>
+                            </div>
+                        `;
+                        alertsDiv.appendChild(alertDiv);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading emergency alerts:', error);
+            }
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDiabetesStats();
+            loadConversationHistory();
+            loadEmergencyContacts();
+            loadEmergencyAlerts();
+            
+            // Refresh statistics every 5 minutes
+            setInterval(loadDiabetesStats, 300000);
+            
+            // Refresh emergency alerts every minute
+            setInterval(loadEmergencyAlerts, 60000);
+        });
+
+        // Auto-focus on input
+        messageInput.focus();
+    </script>
+</body>
+</html>
