@@ -12,10 +12,11 @@ import json
 from datetime import datetime, timedelta
 import plotly.graph_objs as go
 import plotly.utils
+import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'enhanced_diabetes_assistant_2024'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///diabetes_assistant.db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'enhanced_diabetes_assistant_2024')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///diabetes_assistant.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize database
