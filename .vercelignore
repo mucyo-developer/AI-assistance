@@ -1,0 +1,26 @@
+# Ignore large binary files and cache directories
+Scripts/diabetes_memory
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.mypy_cache
+.env
+.venv
+venv/
+env/
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+ehthumbs.db
+Thumbs.db
