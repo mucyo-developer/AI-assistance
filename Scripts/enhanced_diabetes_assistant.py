@@ -292,8 +292,13 @@ I'm here to help. What else can I tell you about managing this situation?"""
     def load_prediction_model(self):
         """Load the trained diabetes prediction model"""
         try:
-            self.model = joblib.load('diabetes_model.pkl')
-            self.scaler = joblib.load('scaler.pkl')
+            # Get the directory where this script is located
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            model_path = os.path.join(script_dir, 'diabetes_model.pkl')
+            scaler_path = os.path.join(script_dir, 'scaler.pkl')
+            
+            self.model = joblib.load(model_path)
+            self.scaler = joblib.load(scaler_path)
             self.feature_names = ['Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age']
             print("✅ Diabetes prediction model loaded successfully")
         except FileNotFoundError:
@@ -302,8 +307,12 @@ I'm here to help. What else can I tell you about managing this situation?"""
     
     def train_new_model(self):
         """Train a new diabetes prediction model"""
+        # Get the directory where this script is located
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        csv_path = os.path.join(script_dir, 'diabetes.csv')
+        
         # Load and preprocess data
-        df = pd.read_csv('diabetes.csv')
+        df = pd.read_csv(csv_path)
         
         # Handle missing values
         columns_with_zeros = ['Glucose', 'BloodPressure', 'SkinThickness', 'Insulin', 'BMI']
@@ -339,8 +348,10 @@ I'm here to help. What else can I tell you about managing this situation?"""
         self.model.fit(X_train_scaled, y_train)
         
         # Save model
-        joblib.dump(self.model, 'diabetes_model.pkl')
-        joblib.dump(self.scaler, 'scaler.pkl')
+        model_path = os.path.join(script_dir, 'diabetes_model.pkl')
+        scaler_path = os.path.join(script_dir, 'scaler.pkl')
+        joblib.dump(self.model, model_path)
+        joblib.dump(self.scaler, scaler_path)
         print("✅ Model trained and saved successfully")
     
     def predict_diabetes_risk(self, metrics: dict) -> dict:

@@ -1,0 +1,127 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+*.out
+*.err
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Model files (keep trained models, exclude temporary)
+temp_models/
+model_cache/
+
+# ChromaDB (keep structure, exclude large cache)
+diabetes_memory/chroma.sqlite3-wal
+diabetes_memory/chroma.sqlite3-shm
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Docker
+.dockerignore
+
+# Environment variables
+.env.local
+.env.production
+
+# Backup files
+*.bak
+*.backup
+backup/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+
+# Deployment specific
+deployment_report.json
+*.pid
+
+# Node modules (if any frontend dependencies)
+node_modules/
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+ssl/
+
+# Large data files (keep CSV, exclude large datasets)
+*.parquet
+*.h5
+*.hdf5
+large_datasets/
+
+# Cache directories
+.cache/
+cache/
+
+# Test outputs
+test_results/
+test_reports/
+
+# Local development
+local_config.py
+.env.local
